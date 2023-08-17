@@ -6,7 +6,7 @@ import Grid from 'components/grid';
 import ProductGridItems from 'components/layout/product-grid-items';
 import { defaultSort, sorting } from 'lib/constants';
 
-export const runtime = 'edge';
+// export const runtime = 'edge';
 
 export async function generateMetadata({
   params
@@ -23,6 +23,8 @@ export async function generateMetadata({
       collection.seo?.description || collection.description || `${collection.title} products`
   };
 }
+
+export const revalidate = 3600;
 
 export default async function CategoryPage({
   params,
