@@ -20,6 +20,7 @@ import {
   summerCollection,
   winterCollection
 } from '../cf/adventures';
+import { cache } from 'react';
 
 const HIDDEN_PRODUCT_TAG = 'hidden';
 
@@ -53,17 +54,19 @@ export const getCollection = async (handle: string) => {
   return reshapeCollection(collections.find((collection) => collection.handle === handle));
 };
 
-export const getCollectionProducts = async ({
-  collection,
-  reverse,
-  sortKey
-}: {
-  collection: string;
-  reverse?: boolean;
-  sortKey?: string;
-}): Promise<Product[]> => {
-  return await getProductsByKeyword(collection);
-};
+export const getCollectionProducts = cache(
+  async ({
+    collection,
+    reverse,
+    sortKey
+  }: {
+    collection: string;
+    reverse?: boolean;
+    sortKey?: string;
+  }): Promise<Product[]> => {
+    return await getProductsByKeyword(collection);
+  }
+);
 
 export async function getCollections(): Promise<Collection[]> {
   const adventureCollections = [winterCollection, summerCollection, europeCollection];
@@ -149,30 +152,32 @@ export const getPages = async (): Promise<Page[]> => {
   return pages;
 };
 
-export const getProduct = async (handle: string) => {
+export const getProduct = cache(async (handle: string) => {
   return reshapeProduct(await getProductByHandle(handle), false);
-};
+});
 
-export const getProductRecommendations = async (productId: string): Promise<Product[]> => {
+export const getProductRecommendations = cache(async (productId: string): Promise<Product[]> => {
   return reshapeProducts([
     (await getProductByHandle('climbing-new-zealand')) as Product,
     (await getProductByHandle('ski-touring-mont-blanc')) as Product,
     (await getProductByHandle('downhill-skiing-wyoming')) as Product,
     (await getProductByHandle('cycling-tuscany')) as Product
   ]);
-};
+});
 
-export const getProducts = async ({
-  query,
-  reverse,
-  sortKey
-}: {
-  query?: string;
-  reverse?: boolean;
-  sortKey?: string;
-}): Promise<Product[]> => {
-  return reshapeProducts(await getProductsByKeyword(query));
-};
+export const getProducts = cache(
+  async ({
+    query,
+    reverse,
+    sortKey
+  }: {
+    query?: string;
+    reverse?: boolean;
+    sortKey?: string;
+  }): Promise<Product[]> => {
+    return reshapeProducts(await getProductsByKeyword(query));
+  }
+);
 
 const reshapeCart = (cart: Cart): Cart => {
   if (!cart.cost?.totalTaxAmount) {

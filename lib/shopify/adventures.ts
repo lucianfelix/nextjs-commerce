@@ -204,8 +204,8 @@ export async function getProductsByKeyword(keyword: string | undefined) {
     // @ts-ignore
     return [
       adventureProducts[0] as Product,
-      adventureProducts[1] as Product,
-      adventureProducts[2] as Product
+      adventureProducts[3] as Product,
+      adventureProducts[4] as Product
     ];
   }
 
