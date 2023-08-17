@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 
 export const runtime = 'edge';
 export const dynamic = 'force-static';
-export const revalidate = false;
+// export const revalidate = false;
 // export const fetchCache = 'auto'
 export const fetchCache = 'only-cache';
 export const preferredRegion = 'auto';
@@ -16,6 +16,8 @@ export const metadata = {
     type: 'website'
   }
 };
+
+export const revalidate = 3600;
 
 export default async function HomePage() {
   return (

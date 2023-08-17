@@ -13,6 +13,8 @@ import Link from 'next/link';
 
 export const runtime = 'edge';
 
+export const revalidate = 43200;
+
 export async function generateMetadata({
   params
 }: {

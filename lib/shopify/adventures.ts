@@ -7,7 +7,7 @@ const baseImagePath = 'https://publish-p64257-e147834-cmstg.adobeaemcloud.com/';
 
 import { cache } from 'react';
 
-export const revalidate = 3600; // revalidate the data at most every hour
+export const revalidate = 43200;
 
 export const getAllAdventures = cache(async () => {
   const client: AdventureClient = AdventureClient.fromEnv();
@@ -18,6 +18,17 @@ export const getAllAdventures = cache(async () => {
   console.log(`getAllAdventures took ${end - start} ms`);
   const adventures = res?.data?.adventureList?.items || [];
   return adventures;
+});
+
+export const getAdventureByName = cache(async (name: string) => {
+  const client: AdventureClient = AdventureClient.fromEnv();
+  //time the call
+  const start = Date.now();
+  const res = await client.getAdventureByPath(name);
+  const end = Date.now();
+  console.log(`getAdventureByPath(${name}) took ${end - start} ms`);
+  const adventure = res?.data?.adventureByPath?.item || [];
+  return adventure;
 });
 
 export async function getStaticCart(): Promise<Cart> {
@@ -67,29 +78,6 @@ export async function getStaticCart(): Promise<Cart> {
 
   return cart;
 }
-
-// const mockShopifyProductOld = {
-//   id: 'product1',
-//   handle: 'sample-product',
-//   availableForSale: true,
-//   title: 'Sample Product',
-//   description: 'This is a sample product.',
-//   descriptionHtml: '<p>This is a sample product.</p>',
-//   options: [mockProductOption],
-//   priceRange: {
-//     maxVariantPrice: mockMoney,
-//     minVariantPrice: mockMoney
-//   },
-//   variants: { edges: [{ node: mockProductVariant }] },
-//   featuredImage: mockImage,
-//   images: { edges: [{ node: mockImage }] },
-//   seo: {
-//     title: 'Sample Product',
-//     description: 'This is a sample product.'
-//   },
-//   tags: ['sample', 'product'],
-//   updatedAt: '2023-08-10T00:00:00Z'
-// };
 
 export function transformToProduct(adventure: any): Product {
   const id = adventure._path; // Assuming the _path is unique enough to serve as an ID
@@ -193,25 +181,10 @@ export async function getAdventureProducts() {
   return products;
 }
 
-// export async function getAdventureProductsNode() {
-//     const adventureProducts = await getAdventureProducts();
-//     const adventureProductNodes = adventureProducts.map((product) => ({
-//         node: product
-//     }));
-//
-//     return adventureProductNodes;
-// }
-
-// export async function getProductNodesByKeyword(keyword: string | undefined) {
-//     return (await getProductsByKeyword(keyword)).map((product) => ({
-//         node: product
-//     }));
-// }
-
 export async function getProductByHandle(handle: string) {
-  const adventureProducts = await getAdventureProducts();
-  const res = adventureProducts.find((product) => product.handle === handle);
-  return res;
+  const cfPath = `/content/dam/aem-demo-assets/en/adventures/${handle}/${handle}`;
+  const adventureProduct = await getAdventureByName(cfPath);
+  return transformToProduct(adventureProduct);
 }
 
 export async function getProductsByKeyword(keyword: string | undefined) {
