@@ -3,7 +3,7 @@ import { ThreeItemGrid } from 'components/grid/three-items';
 import Footer from 'components/layout/footer';
 import { Suspense } from 'react';
 
-export const runtime = 'edge';
+// export const runtime = 'edge';
 export const dynamic = 'force-static';
 // export const revalidate = false;
 // export const fetchCache = 'auto'
