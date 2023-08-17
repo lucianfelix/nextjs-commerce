@@ -175,17 +175,17 @@ export function transformToProduct(adventure: any): Product {
 
 // export const adventureProducts: Product[] = adventures.map(transformToProduct) as Product[];
 
-export async function getAdventureProducts() {
+export const getAdventureProducts = cache(async () => {
   const adventures = await getAllAdventures();
   const products = adventures.map(transformToProduct) as Product[];
   return products;
-}
+});
 
-export async function getProductByHandle(handle: string) {
+export const getProductByHandle = cache(async (handle: string) => {
   const cfPath = `/content/dam/aem-demo-assets/en/adventures/${handle}/${handle}`;
   const adventureProduct = await getAdventureByName(cfPath);
   return transformToProduct(adventureProduct);
-}
+});
 
 export async function getProductsByKeyword(keyword: string | undefined) {
   const adventureProducts = await getAdventureProducts();
