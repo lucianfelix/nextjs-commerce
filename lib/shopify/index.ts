@@ -12,7 +12,7 @@ import {
   ShopifyCollectionsOperation,
   ShopifyProduct
 } from './types';
-import { getProductByHandle, getProductNodesByKeyword, getStaticCart } from './adventures';
+import { getProductByHandle, getProductsByKeyword, getStaticCart } from './adventures';
 import {
   collections,
   europeCollection,
@@ -23,77 +23,34 @@ import {
 
 const HIDDEN_PRODUCT_TAG = 'hidden';
 
-// Helper function to simulate a fetch response
-// @ts-ignore
-const mockFetchResponse = (data) => ({
-  body: {
-    data
-  }
-});
-
-// @ts-ignore
-const removeEdgesAndNodes = (connection) => {
-  if (!connection?.edges) {
-    return connection;
-  }
-
-  return connection?.edges ? connection?.edges.map((edge: any) => edge.node) : [];
-};
-
 export const createCart = async (): Promise<Cart> => {
-  const res = mockFetchResponse({
-    cartCreate: {
-      cart: await getStaticCart()
-    }
-  });
-  return reshapeCart(res.body.data.cartCreate.cart);
+  return reshapeCart(await getStaticCart());
 };
 
 export const addToCart = async (
   cartId: string,
   lines: { merchandiseId: string; quantity: number }[]
 ): Promise<Cart> => {
-  const res = mockFetchResponse({
-    cartLinesAdd: {
-      cart: await getStaticCart()
-    }
-  });
-  return reshapeCart(res.body.data.cartLinesAdd.cart);
+  return reshapeCart(await getStaticCart());
 };
 
 export const removeFromCart = async (cartId: string, lineIds: string[]): Promise<Cart> => {
-  const res = mockFetchResponse({
-    cartLinesRemove: {
-      cart: await getStaticCart()
-    }
-  });
-  return reshapeCart(res.body.data.cartLinesRemove.cart);
+  return reshapeCart(await getStaticCart());
 };
 
 export const updateCart = async (
   cartId: string,
   lines: { id: string; merchandiseId: string; quantity: number }[]
 ): Promise<Cart> => {
-  const res = mockFetchResponse({
-    cartLinesUpdate: {
-      cart: await getStaticCart()
-    }
-  });
-  return reshapeCart(res.body.data.cartLinesUpdate.cart);
+  return reshapeCart(await getStaticCart());
 };
 
 export const getCart = async (cartId: string): Promise<Cart | undefined> => {
-  const res = mockFetchResponse({
-    cart: await getStaticCart()
-  });
-  return reshapeCart(res.body.data.cart);
+  return reshapeCart(await getStaticCart());
 };
 
-export const getCollection = async (handle: string): Promise<Collection | undefined> => {
-  const res = mockFetchResponse({
-    collection: collections.find((collection) => collection.handle === handle)
-  });
-  return reshapeCollection(res.body.data.collection);
+export const getCollection = async (handle: string) => {
+  return reshapeCollection(collections.find((collection) => collection.handle === handle));
 };
 
 export const getCollectionProducts = async ({
@@ -105,27 +62,11 @@ export const getCollectionProducts = async ({
   reverse?: boolean;
   sortKey?: string;
 }): Promise<Product[]> => {
-  const res = mockFetchResponse({
-    collection: {
-      products: {
-        edges: await getProductNodesByKeyword(collection)
-      }
-    }
-  });
-  return reshapeProducts(removeEdgesAndNodes(res.body.data.collection.products));
+  return await getProductsByKeyword(collection);
 };
 
 export async function getCollections(): Promise<Collection[]> {
-  // const res = await shopifyFetch<ShopifyCollectionsOperation>({
-  //     query: getCollectionsQuery,
-  //     tags: [TAGS.collections]
-  // });
-  const res = mockFetchResponse({
-    collections: {
-      edges: [{ node: winterCollection }, { node: summerCollection }, { node: europeCollection }]
-    }
-  });
-  const shopifyCollections = removeEdgesAndNodes(res.body?.data?.collections);
+  const adventureCollections = [winterCollection, summerCollection, europeCollection];
   const collections = [
     {
       handle: '',
@@ -140,7 +81,7 @@ export async function getCollections(): Promise<Collection[]> {
     },
     // Filter out the `hidden` collections.
     // Collections that start with `hidden-*` need to be hidden on the search page.
-    ...reshapeCollections(shopifyCollections).filter(
+    ...reshapeCollections(adventureCollections).filter(
       (collection) => !collection.handle.startsWith('hidden')
     )
   ];
@@ -148,94 +89,77 @@ export async function getCollections(): Promise<Collection[]> {
   return collections;
 }
 
-export const getMenu = async (handle: string): Promise<Menu[]> => {
-  const res = mockFetchResponse({
-    menu: {
-      items: [
-        {
-          title: 'All',
-          path: '/'
-        },
-        {
-          title: 'Summer',
-          path: '/search/summer-collection'
-        },
-        {
-          title: 'Winter',
-          path: '/search/winter-collection'
-        },
-        {
-          title: 'Europe',
-          path: '/search/europe-collection'
-        }
-      ]
+export const getMenu = async (handle: string) => {
+  const items = [
+    {
+      title: 'All',
+      path: '/'
+    },
+    {
+      title: 'Summer',
+      path: '/search/summer-collection'
+    },
+    {
+      title: 'Winter',
+      path: '/search/winter-collection'
+    },
+    {
+      title: 'Europe',
+      path: '/search/europe-collection'
     }
-  });
-  return res.body.data.menu.items;
+  ];
+  return items;
 };
 
-export const getFooterMenu = async (handle: string): Promise<Menu[]> => {
-  const res = mockFetchResponse({
-    menu: {
-      items: [
-        {
-          title: 'Home',
-          path: '/'
-        },
-        {
-          title: 'About',
-          path: '/about'
-        },
-        {
-          title: 'Terms & Conditions',
-          path: '/tc'
-        },
-        {
-          title: 'Shipping & Return Policy',
-          path: '/sr'
-        },
-        {
-          title: 'Privacy Policy',
-          path: '/pp'
-        },
-        {
-          title: 'FAQ',
-          path: '/faq'
-        }
-      ]
+export const getFooterMenu = async (handle: string) => {
+  const items = [
+    {
+      title: 'Home',
+      path: '/'
+    },
+    {
+      title: 'About',
+      path: '/about'
+    },
+    {
+      title: 'Terms & Conditions',
+      path: '/tc'
+    },
+    {
+      title: 'Shipping & Return Policy',
+      path: '/sr'
+    },
+    {
+      title: 'Privacy Policy',
+      path: '/pp'
+    },
+    {
+      title: 'FAQ',
+      path: '/faq'
     }
-  });
-  return res.body.data.menu.items;
+  ];
+  return items;
 };
 
-export const getPage = async (handle: string): Promise<Page> => {
-  const res = mockFetchResponse({
-    pageByHandle: pages.find((page) => page.handle === handle)
-  });
-  return res.body.data.pageByHandle;
+export const getPage = async (handle: string) => {
+  return pages.find((page) => page.handle === handle);
 };
 
 export const getPages = async (): Promise<Page[]> => {
   return pages;
 };
 
-export const getProduct = async (handle: string): Promise<Product | undefined> => {
-  const res = mockFetchResponse({
-    product: await getProductByHandle(handle)
-  });
-  return reshapeProduct(res.body.data.product, false);
+export const getProduct = async (handle: string) => {
+  return reshapeProduct(await getProductByHandle(handle), false);
 };
 
 export const getProductRecommendations = async (productId: string): Promise<Product[]> => {
-  const res = mockFetchResponse({
-    productRecommendations: [
-      await getProductByHandle('climbing-new-zealand'),
-      await getProductByHandle('ski-touring-mont-blanc'),
-      await getProductByHandle('downhill-skiing-wyoming'),
-      await getProductByHandle('cycling-tuscany')
-    ]
-  });
-  return reshapeProducts(res.body.data.productRecommendations);
+  return reshapeProducts([
+    (await getProductByHandle('climbing-new-zealand')) as Product,
+    (await getProductByHandle('ski-touring-mont-blanc')) as Product,
+    (await getProductByHandle('downhill-skiing-wyoming')) as Product,
+    (await getProductByHandle('cycling-tuscany')) as Product
+  ]);
 };
 
 export const getProducts = async ({
@@ -247,15 +171,10 @@ export const getProducts = async ({
   reverse?: boolean;
   sortKey?: string;
 }): Promise<Product[]> => {
-  const res = mockFetchResponse({
-    products: {
-      edges: await getProductNodesByKeyword(query)
-    }
-  });
-  return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+  return reshapeProducts(await getProductsByKeyword(query));
 };
 
-const reshapeCart = (cart: ShopifyCart): Cart => {
+const reshapeCart = (cart: Cart): Cart => {
   if (!cart.cost?.totalTaxAmount) {
     cart.cost.totalTaxAmount = {
       amount: '0.0',
@@ -265,11 +184,11 @@ const reshapeCart = (cart: ShopifyCart): Cart => {
 
   return {
     ...cart,
-    lines: removeEdgesAndNodes(cart.lines)
+    lines: cart.lines
   };
 };
 
-const reshapeCollection = (collection: ShopifyCollection): Collection | undefined => {
+const reshapeCollection = (collection: ShopifyCollection | undefined): Collection | undefined => {
   if (!collection) {
     return undefined;
   }
@@ -296,11 +215,12 @@ const reshapeCollections = (collections: ShopifyCollection[]) => {
   return reshapedCollections;
 };
 
-const reshapeImages = (images: Connection<Image>, productTitle: string) => {
-  const flattened = removeEdgesAndNodes(images);
+const reshapeImages = (images: Image[], productTitle: string) => {
+  const flattened = images;
 
   // @ts-ignore
   return flattened.map((image) => {
+    // @ts-ignore
     const filename = image.url.match(/.*\/(.*)\..*/)[1];
     return {
       ...image,
@@ -309,7 +229,7 @@ const reshapeImages = (images: Connection<Image>, productTitle: string) => {
   });
 };
 
-const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true) => {
+const reshapeProduct = (product: Product | undefined, filterHiddenProducts: boolean = true) => {
   // if (!product || (filterHiddenProducts && product.tags.includes(HIDDEN_PRODUCT_TAG))) {
   if (!product) {
     return undefined;
@@ -320,11 +240,11 @@ const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean =
   return {
     ...rest,
     images: reshapeImages(images, product.title),
-    variants: removeEdgesAndNodes(variants)
+    variants: variants
   };
 };
 
-const reshapeProducts = (products: ShopifyProduct[]) => {
+const reshapeProducts = (products: Product[]) => {
   const reshapedProducts = [];
 
   for (const product of products) {

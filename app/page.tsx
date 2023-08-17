@@ -4,6 +4,11 @@ import Footer from 'components/layout/footer';
 import { Suspense } from 'react';
 
 export const runtime = 'edge';
+export const dynamic = 'force-static';
+export const revalidate = false;
+// export const fetchCache = 'auto'
+export const fetchCache = 'only-cache';
+export const preferredRegion = 'auto';
 
 export const metadata = {
   description: 'High-performance ecommerce store built with Next.js, Vercel.',

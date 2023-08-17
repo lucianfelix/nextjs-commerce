@@ -96,7 +96,7 @@ export type ShopifyCart = {
     totalAmount: Money;
     totalTaxAmount: Money;
   };
-  lines: Connection<CartItem>;
+  lines: CartItem[];
   totalQuantity: number;
 };
 
